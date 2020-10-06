@@ -13,9 +13,33 @@ https://github.com/rjmaitri/04_Bartolini_Bob_2020.git
 Functions and Tidy Data
 Biol 607
 10/4/2020
-1. Write a function that takes a vector and returns one bootstrapped sample from said vector. Demonstrate that it works.
 
-2. Write a function that given a vector of values a request for some number of bootstraps (let’s call the parameter R), and a sample statistic function (e.g., mean, IQR, etc.) returns R number of values of that statistic. Have it default to R = 1000 and the function is mean. Show this works for 10 bootstrapped replicate draws of a mean from some vector. Do the values look reasonable? Compare to the actual mean of the vector.
+
+## 1. Write a function that takes a vector and returns one bootstrapped sample from said vector. Demonstrate that it works.
+
+```{r}
+
+
+
+# One Bootsrap Sample ####
+bootstrap <- function(vec){
+  
+  one_boot<- sample(vec,
+                   size = length(vec),
+                   replace = TRUE)
+
+  
+  return(one_boot)
+}
+
+bootstrap(c(1,4,5))
+
+
+
+```
+
+
+## 2. Write a function that given a vector of values a request for some number of bootstraps (let’s call the parameter R), and a sample statistic function (e.g., mean, IQR, etc.) returns R number of values of that statistic. Have it default to R = 1000 and the function is mean. Show this works for 10 bootstrapped replicate draws of a mean from some vector. Do the values look reasonable? Compare to the actual mean of the vector.
 
 make sure you are using the function(s) you wrote in #1
 
