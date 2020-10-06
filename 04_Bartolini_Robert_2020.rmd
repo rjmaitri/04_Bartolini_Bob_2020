@@ -98,8 +98,6 @@ boot_stat <- function(vec, R, stat) {
  
 means <- replicate(R, bootstrap(vec) %>% 
                        mean)
-
-quan
  
  out <- data.frame(OriginalMean = mean(vec),
                    BootStrapMean = means,
@@ -127,30 +125,83 @@ booz_strap <- function(vec, R = 10){
 return(one_boot)
 }  
 
-booz_strap(c(2,4,2,4,5,3,3,5),10)
+
   
-booz_stat <- function(booz_strap)  {
+booz_stat <- function(vec, R = 10)  {
 booze_mean <- mean(booz_strap)
-real_mean
-booze_25_quant
-booze_75_quant 
-bias
-<- data.frame(
-    mean_vec = mean(vec),  
-    mean_samp = mean(booz_strap()),
-    firstquantile = quantile(booz_strap(), 0.25),
-    thirdquantile = quantile(booz_strap(), 0.75),
-    bias = mean(vec) - mean(booz_strap())
-  )
+real_mean <- mean(vec)
+booze_25_quant <- quantile(vec, 0.25)
+booze_75_quant <- quantile(vec, 0.75)
+bias <- mean(booz_strap) - mean(vec)
+
+out <- data.frame(
+    mean_vec = real_mean,  
+    mean_samp = booze_mean,
+    firstquantile = booze_25_quant,
+    thirdquantile = booze_75_quant,
+    bias = real_mean - booze_mean)
+ 
   
   #return a data frame with relevant stats
-  return(booze)
+  return(out)
 }
 
-booz_stat(c(4,4,3,5,2,4,19,19))
+booz_stat(c(4,4,3,5,2,4,19,19), 10)
 
 
 
+```
+
+
+```{r}
+### Modular functions #### BEST YET, THE CODE FORM START OF CLASS
+get_samp_rep <- function(vec){
+  # bootstrap from a vector
+  strap <- sample(vec,
+                   size = length(vec),
+                   replace = TRUE)
+
+  
+  return(strap)
+}
+  
+
+boot_statistics <- function(vec, R){
+  
+  bstraps <- replicate(R, get_samp_rep(vec))
+  
+  out <- data.frame(
+          mean_vec = mean(vec),  
+        mean_samp = mean(bstraps),
+    firstquantile = quantile(bstraps, 0.25),
+    thirdquantile = quantile(bstraps, 0.75),
+    bias = mean(vec) - mean(bstraps)
+  )
+  
+  return(out)
+}
+
+
+boot_statistics(c(24,24,2,3,5,2,1), 10)
+
+### Modular functions ####
+get_samp_rep <- function(n, m, s){
+  # sample from a normal population
+  samp <- rnorm(n, m, s)
+  
+  #return the mean from that sample
+  mean(samp)
+}
+
+mean_and_se_sim <- function(n, m, s, sims = 100){
+  
+  means <- replicate(sims, get_samp_rep(n, m, s))
+  
+  out <- data.frame(mean = mean(means),
+                    se_mean = sd(means))
+  
+  return(out)
+}
 ```
 
 4. FiveThirtyEight keeps a great archive of poll data at https://projects.fivethirtyeight.com/polls/. The presidential general election polling data is freely available at https://projects.fivethirtyeight.com/polls-page/president_polls.csv with question, poll id, and cycle defining a unique poll.
