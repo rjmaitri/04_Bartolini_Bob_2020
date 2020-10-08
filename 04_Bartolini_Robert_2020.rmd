@@ -168,14 +168,18 @@ get_samp_rep <- function(vec){
 
 boot_statistics <- function(vec, R){
   
-  bstraps <- replicate(R, get_samp_rep(vec))
+  bstraps_mean <- replicate(R, mean(get_samp_rep(vec)))
+  mean_vec <- replicate(R, mean(vec))
+  firstquant <- replicate(R, quantile(get_samp_rep(vec),0.25))
+  thirdquant <- replicate(R, quantile(get_samp_rep(vec),0.75))
+  bias <- mean(vec) - replicate(R, mean(get_samp_rep(vec)))
   
   out <- data.frame(
-          mean_vec = mean(vec),  
-        mean_samp = mean(bstraps),
-    firstquantile = quantile(bstraps, 0.25),
-    thirdquantile = quantile(bstraps, 0.75),
-    bias = mean(vec) - mean(bstraps)
+          mean_vec = mean_vec,  
+        mean_samp = bstraps_mean,
+    firstquantile = firstquant,
+    thirdquantile = thirdquant,
+    bias = bias
   )
   
   return(out)
