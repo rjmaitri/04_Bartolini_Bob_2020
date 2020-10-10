@@ -145,11 +145,48 @@ reactable(data.frame(R = 1:100) %>%
 
     4a. Download and look at the data. Is it long or wide?
 
+```{r}
+library(readr)
+pres_poll <- read_csv("president_polls.csv")
+
+reactable(pres_poll)
+```
+
+
+<span style="color: green;"> The presidential polls dataset is wide, as it has two rows dedicated to each polling question.</span>
+
     4b. Get just the polling data for this last week (from 9/29 to today). Filter on start_date. Also filter down to just Biden and Trump (see candidate_name or answer). Extra credit for using {lubridate} for this, but you can just do a messy %in% string match.
+    
+```{r}
+library(lubridate)
+library(dplyr)
+library(readr)
+
+class(pres_poll$start_date)
+
+pres_poll$start_date<- as.Date(pres_poll$start_date, format = "%m/%d/%Y")
+
+
+
+presPoll_filter <- filter(pres_poll, answer == "Biden" | answer == "Trump")
+  
+pres_current <- presPoll_filter[presPoll_filter$start_date >= "2020-09-29" & presPoll_filter$start_date <= "2020-10-10",]
+
+reactable(pres_current)
+
+```
 
     4c. OK, this is your sample. What’s the bootstrapped average percentage for each candidate for nationwide polls (state == "")? Note, this answer will not match 538 given their weighting by poll trustworthiness.
+    
+```{r}
+
+
+
+```
 
     4d. What is the average difference between the two candidates by state and national polls? Note, you’ll need to make this a wide data frame to answer! And, well, try the pivot without this advice first, but then….
+    
+    
 
 make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
 
