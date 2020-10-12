@@ -181,14 +181,53 @@ reactable(pres_current)
 ```{r}
 
 
+#filter by president and nationwide
+Boot_pct <- pres_current %>% 
+  select(state, answer, pct)
+#replace NA's with zeros to keep dpylr happy
+vec_3 <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
+
+data <- data.frame(Nationwide = c(vec_3),
+                   Candidate = c(Boot_pct$answer),
+                   pct = Boot_pct$pct)
+
+#Trump & National Pct filter for bootstrap
+trumpbootdata <- data %>%
+  filter(Candidate == "Trump" & Nationwide == 0)
+
+# SE of the mean ####
+# SE of the mean ####
+Donald_boot_mean <- sample(trumpbootdata$pct, 
+                             size = length(trumpbootdata$pct),
+                             replace = TRUE) %>% mean
+
+```
+
+```{r}
+
+#Trump & National Pct filter for bootstrap
+Bidenbootdata <- data %>%
+  filter(Candidate == "Biden" & Nationwide == 0)
+
+# SE of the mean ####
+# SE of the mean ####
+Biden_boot_mean <- sample(Bidenbootdata$pct, 
+                             size = length(Bidenbootdata$pct),
+                             replace = TRUE) %>% mean
 
 ```
 
     4d. What is the average difference between the two candidates by state and national polls? Note, you’ll need to make this a wide data frame to answer! And, well, try the pivot without this advice first, but then….
     
-    
+```{r}
+library(tidyr)
 
-make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
+reactable(pivot_wider(pres_current))
+
+
+```
+
+### make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
 
 5. replicate() has been our friend, but we’ve always had to be a little hacky with it. We’ve either had to fold in means, or use tricksy functions like colMeans and the like.
 
