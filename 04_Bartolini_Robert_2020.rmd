@@ -153,7 +153,7 @@ reactable(pres_poll)
 ```
 
 
-<span style="color: green;"> The presidential polls dataset is wide, as it has two rows dedicated to each polling question.</span>
+<span style="color: green;"> The presidential polls dataset is long, as it has two rows dedicated to each polling question.</span>
 
     4b. Get just the polling data for this last week (from 9/29 to today). Filter on start_date. Also filter down to just Biden and Trump (see candidate_name or answer). Extra credit for using {lubridate} for this, but you can just do a messy %in% string match.
     
@@ -222,12 +222,60 @@ Biden_boot_mean <- sample(Bidenbootdata$pct,
 ```{r}
 library(tidyr)
 
-reactable(pivot_wider(pres_current))
+poll_wide <- data %>%
+  pivot_wider(names_from = Candidate,
+              values_from = Nationwide, pct)
+
+
+reactable(poll_wide)
+```
+
+### make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
+
+
+
+```{r}
+
+
+Tidy_polls <- pres_current %>%
+mutate(unique_ID = paste(question_id, poll_id, state, sep = "_")) %>% 
+  group_by(unique_ID) %>% diff(pct)
+
+
+
+
+
+Wide_N_Tidy <- Tidy_polls %>%
+  pivot_wider(names_from = unique_ID,
+              values_from = pct) #%>%
+  select(Biden, Trump, pct)
+
+
+state_dif <- 
+
+reactable(Wide_N_Tidy)
+
+
 
 
 ```
 
-### make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
+```{r}
+vec_3 <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
+
+data <- data.frame(Nationwide = c(vec_3),
+                   Candidate = c(Boot_pct$answer),
+                   pct = Boot_pct$pct)
+#calculate Trump national mean
+
+Trump_national_mean <- data %>% 
+  filter(Candidate == "Trump" & Nationwide == 0) 
+
+mean(Trump_national_mean$pct)
+
+#
+
+```
 
 5. replicate() has been our friend, but we’ve always had to be a little hacky with it. We’ve either had to fold in means, or use tricksy functions like colMeans and the like.
 
