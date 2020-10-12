@@ -44,6 +44,7 @@ bootstrap(c(1,4,5))
 
 make sure you are using the function(s) you wrote in #1
 
+
 ```{r}
 library(dplyr)
 #input vec, R(#of bootstraps), mean
@@ -237,21 +238,19 @@ reactable(poll_wide)
 ```{r}
 
 
-Tidy_polls <- pres_current %>%
-mutate(unique_ID = paste(question_id, poll_id, state, sep = "_")) %>% 
-  group_by(unique_ID) %>% diff(pct)
 
+
+Tidy_polls <- pres_current %>%
+mutate(unique_ID = paste(state, question_id, poll_id, sep = "_"))
 
 
 
 
 Wide_N_Tidy <- Tidy_polls %>%
+  group_by(unique_ID) %>%
   pivot_wider(names_from = unique_ID,
-              values_from = pct) #%>%
-  select(Biden, Trump, pct)
+              values_from = pct) 
 
-
-state_dif <- 
 
 reactable(Wide_N_Tidy)
 
@@ -273,9 +272,43 @@ Trump_national_mean <- data %>%
 
 mean(Trump_national_mean$pct)
 
-#
+#Biden National avg. 
+
+Biden_national_mean <- data %>% 
+  filter(Candidate == "Biden" & Nationwide == 0) 
+
+mean(Biden_national_mean$pct)
 
 ```
+
+Biden has a `r Biden_national_mean - Trump_national_mean` advantage in the national polls.
+
+
+```{r}
+#tidy data fro trump state avg
+Trump_state_mean <- data %>% 
+  filter(Candidate == "Trump" & Nationwide != 0) 
+#calculate trump state avg
+mean(Trump_state_mean$pct)
+
+
+
+
+
+```
+
+```{r}
+#tidy the data to just state pct for Biden
+Biden_state_mean <- data %>% 
+  filter(Candidate == "Biden" & Nationwide != 0) 
+#calculate Biden state avg
+mean(Biden_state_mean$pct)
+
+
+
+```
+
+Biden has a `r Biden_state_mean - Trump_state_mean` advantage in the state polls.
 
 5. replicate() has been our friend, but we’ve always had to be a little hacky with it. We’ve either had to fold in means, or use tricksy functions like colMeans and the like.
 
