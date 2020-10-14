@@ -244,20 +244,53 @@ Tidy_polls <- pres_current %>%
 mutate(unique_ID = paste(state, question_id, poll_id, sep = "_"))
 
 
-
+Wide_N_Tidy <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
 
 Wide_N_Tidy <- Tidy_polls %>%
-  group_by(unique_ID) %>%
-  pivot_wider(names_from = unique_ID,
-              values_from = pct) 
-
+  pivot_wider(names_from = answer,
+              values_from = pct)  %>%
+  select(state, Biden, Trump, unique_ID)
 
 reactable(Wide_N_Tidy)
 
 
+Hopes <- Wide_N_Tidy %>%
+    group_by(state) %>%
+    arrange(unique_ID) %>%
+    mutate(diff = Trump - lag(Biden))
+
+```
+
+
+
+
+
+
+```{r}
+
+####manual attempt, probably not a good road
+
+#change state na to zero
+cleanstate <- replace(Wide_N_Tidy$state, is.na(Wide_N_Tidy$state), 0)
+#remove nation data
+state_list <- unique(Wide_N_Tidy$unique_ID)
+#remove repeat row
+singlestate <- unique(cleanstate)
+#change biden na to zero
+cleanBidenpct <- replace(Wide_N_Tidy$Biden, is.na(Wide_N_Tidy$Biden), 0)
+#change na to zero
+cleanTrumppct <- replace(Wide_N_Tidy$Trump, is.na(Wide_N_Tidy$Trump), 0)
+#remove zeros trump
+trumpPCT <- subset(cleanTrumppct, cleanTrumppct !=0)
+#remove zeros Biden
+bidenPCT <- subset(cleanBidenpct, cleanBidenpct !=0)
 
 
 ```
+
+
+
+
 
 ```{r}
 vec_3 <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
