@@ -253,7 +253,7 @@ Wide_N_Tidy <- Tidy_polls %>%
 
 reactable(Wide_N_Tidy)
 
-
+####hope is the answer lol
 Hopes <- Wide_N_Tidy %>%
     group_by(state) %>%
     arrange(unique_ID) %>%
