@@ -257,7 +257,7 @@ reactable(Wide_N_Tidy)
 
 ```{r}
 
-####get the difference between trump and biden
+####get the difference between Trump and Biden
 Poll_diff <- Wide_N_Tidy %>%
     group_by(state) %>%
     arrange(unique_ID) %>%
@@ -280,29 +280,28 @@ USA_mean <- sample(na.omit(National_diff),
 State_diff <- Poll_diff[-c(67:176),]
 
 #make absolute values
-State_diff <- abs(State_diff$diff)
+State_diff$diff <- abs(State_diff$diff)
 
 #bootstrap state mean
 State_mean <- sample(na.omit(State_diff), 
        size = length(State_diff),
        replace = TRUE) %>% mean
 
+###### attempt to get means by EACH STATE
+#bootstrap state mean
+#State_mean <- na.omit(State_diff) %>%
+#  group_by(state) %>%
+#  sample(diff,
+#       size = length(diff),
+#       replace = TRUE) %>%
+#     summarize(State = state,
+#    mean = mean(diff),
+#            SE = mean(diff)/sqrt(length(State_diff)-1))
+
+
+
+
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -314,6 +313,12 @@ State_mean <- sample(na.omit(State_diff),
 BUT - what’s interesting about replicate() is that, if you ask it to turn back raw draws from a random number generator - or anything with more than one value - it gives you a matrix or array.
 
     5a. So, I want you to, using the mean and SD of Biden’s national polling average (you’ll need to calculate it!) from above, simulate 1000 draws from that population with a sample size of 50. What are the dimensions of the object. What are in the rows and columns?
+    
+```{r}
+
+
+
+```
 
     5b. Yuck. Can you turn this into something usable? Say, first make it a tibble or data frame, and then pivot it to long, such that you end up with a column that has an identifier for sim and a column with a single value from that sim?
 
