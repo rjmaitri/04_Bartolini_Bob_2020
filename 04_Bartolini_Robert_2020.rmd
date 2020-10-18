@@ -253,11 +253,39 @@ Wide_N_Tidy <- Tidy_polls %>%
 
 reactable(Wide_N_Tidy)
 
-####hope is the answer lol
-Hopes <- Wide_N_Tidy %>%
+```
+
+```{r}
+
+####get the difference between trump and biden
+Poll_diff <- Wide_N_Tidy %>%
     group_by(state) %>%
     arrange(unique_ID) %>%
-    mutate(diff = Trump - lag(Biden))
+    mutate(diff = Trump - lag(Biden)) 
+
+reactable(Poll_diff)
+
+#extract national data/create national df
+National_diff <- Poll_diff[c(67:176),]
+
+#make absolute values
+National_diff <- abs(National_diff$diff)
+
+#bootstrap an average national poll difference
+USA_mean <- sample(na.omit(National_diff), 
+       size = length(National_diff),
+       replace = TRUE) %>% mean
+
+#create state df by extracting national
+State_diff <- Poll_diff[-c(67:176),]
+
+#make absolute values
+State_diff <- abs(State_diff$diff)
+
+#bootstra
+State_mean <- sample(na.omit(State_diff), 
+       size = length(State_diff),
+       replace = TRUE) %>% mean
 
 ```
 
@@ -266,82 +294,20 @@ Hopes <- Wide_N_Tidy %>%
 
 
 
-```{r}
-
-####manual attempt, probably not a good road
-
-#change state na to zero
-cleanstate <- replace(Wide_N_Tidy$state, is.na(Wide_N_Tidy$state), 0)
-#remove nation data
-state_list <- unique(Wide_N_Tidy$unique_ID)
-#remove repeat row
-singlestate <- unique(cleanstate)
-#change biden na to zero
-cleanBidenpct <- replace(Wide_N_Tidy$Biden, is.na(Wide_N_Tidy$Biden), 0)
-#change na to zero
-cleanTrumppct <- replace(Wide_N_Tidy$Trump, is.na(Wide_N_Tidy$Trump), 0)
-#remove zeros trump
-trumpPCT <- subset(cleanTrumppct, cleanTrumppct !=0)
-#remove zeros Biden
-bidenPCT <- subset(cleanBidenpct, cleanBidenpct !=0)
-
-
-```
 
 
 
 
 
-```{r}
-vec_3 <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
-
-data <- data.frame(Nationwide = c(vec_3),
-                   Candidate = c(Boot_pct$answer),
-                   pct = Boot_pct$pct)
-#calculate Trump national mean
-
-Trump_national_mean <- data %>% 
-  filter(Candidate == "Trump" & Nationwide == 0) 
-
-mean(Trump_national_mean$pct)
-
-#Biden National avg. 
-
-Biden_national_mean <- data %>% 
-  filter(Candidate == "Biden" & Nationwide == 0) 
-
-mean(Biden_national_mean$pct)
-
-```
-
-Biden has a `r Biden_national_mean - Trump_national_mean` advantage in the national polls.
-
-
-```{r}
-#tidy data fro trump state avg
-Trump_state_mean <- data %>% 
-  filter(Candidate == "Trump" & Nationwide != 0) 
-#calculate trump state avg
-mean(Trump_state_mean$pct)
 
 
 
 
 
-```
-
-```{r}
-#tidy the data to just state pct for Biden
-Biden_state_mean <- data %>% 
-  filter(Candidate == "Biden" & Nationwide != 0) 
-#calculate Biden state avg
-mean(Biden_state_mean$pct)
 
 
 
-```
 
-Biden has a `r Biden_state_mean - Trump_state_mean` advantage in the state polls.
 
 5. replicate() has been our friend, but we’ve always had to be a little hacky with it. We’ve either had to fold in means, or use tricksy functions like colMeans and the like.
 
