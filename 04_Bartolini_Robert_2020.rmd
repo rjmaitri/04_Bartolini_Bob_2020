@@ -282,7 +282,7 @@ State_diff <- Poll_diff[-c(67:176),]
 #make absolute values
 State_diff <- abs(State_diff$diff)
 
-#bootstra
+#bootstrap state mean
 State_mean <- sample(na.omit(State_diff), 
        size = length(State_diff),
        replace = TRUE) %>% mean
