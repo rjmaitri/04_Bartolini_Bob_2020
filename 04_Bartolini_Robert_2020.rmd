@@ -206,7 +206,7 @@ Donald_boot_mean <- sample(trumpbootdata$pct,
 
 ```{r}
 
-#Trump & National Pct filter for bootstrap
+#Biden & National Pct filter for bootstrap
 Bidenbootdata <- data %>%
   filter(Candidate == "Biden" & Nationwide == 0)
 
@@ -223,9 +223,9 @@ Biden_boot_mean <- sample(Bidenbootdata$pct,
 ```{r}
 library(tidyr)
 
-poll_wide <- data %>%
-  pivot_wider(names_from = Candidate,
-              values_from = Nationwide, pct)
+poll_wide <- pres_current %>%
+  pivot_wider(names_from = state,
+              values_from = pct)
 
 
 reactable(poll_wide)
@@ -244,21 +244,50 @@ Tidy_polls <- pres_current %>%
 mutate(unique_ID = paste(state, question_id, poll_id, sep = "_"))
 
 
-Wide_N_Tidy <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
+# Wide_N_Tidy <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
 
-Wide_N_Tidy <- Tidy_polls %>%
-  pivot_wider(names_from = answer,
-              values_from = pct)  %>%
-  select(state, Biden, Trump, unique_ID)
 
-reactable(Wide_N_Tidy)
+
+Wide_poll <- Tidy_polls %>% 
+  select(unique_ID, state, pct, answer) %>%
+  pivot_wider(names_from = state,
+              values_from = pct) 
+# %>%
+  select(answer, unique_ID)
+
+reactable(Wide_poll)
 
 ```
 
 ```{r}
 
+avgpoldif <- Wide_poll %>%
+  group_by(answer, state) %>%
+  rowwise() %>%
+  summarise(mean_diff = mean(Georgia_132272_70715:`West Virginia_132056_70625`))
+
+meanpct <- 
+  aggregate(Wide_poll[, 3:25], list(Wide_poll$answer), mean, na.rm = TRUE) %>%
+  sapply(diff)
+
+difference <- meanpct %>%
+  rowwise() %>%
+  summarise(difference = Biden - Trump)
+
+reactable(meanpct)
+
+
+
+```
+
+
+
+
+   old Answer
+```{r}
+
 ####get the difference between Trump and Biden
-Poll_diff <- Wide_N_Tidy %>%
+Poll_diff <- Wide_poll %>%
     group_by(state) %>%
     arrange(unique_ID) %>%
     mutate(diff = Trump - lag(Biden)) 
@@ -316,6 +345,26 @@ BUT - what’s interesting about replicate() is that, if you ask it to turn back
     
 ```{r}
 
+
+Biden_rep_mean <- replicate(100, sample(Bidenbootdata$pct, 
+                             size = length(50),
+                             replace = TRUE) %>% 
+                             summarize = mean = )
+
+
+Biden_natl_means <- data.frame(Bidenbootdata) %>%
+  # replicate 1000 times
+  summarize(Natl_Boot_mean = replicate(100,
+                                 # bootstrap draws 
+                                 sample(pct,
+                                        size = 50,
+                                        replace = TRUE) %>%
+                                   # and get an mean
+                                   mean() 
+                                 ))
+
+Biden_natl_means <- Biden_natl_means %>%
+ summarize(Natl_SD = sd(Natl_Boot_mean))
 
 
 ```
