@@ -380,26 +380,27 @@ BUT - what’s interesting about replicate() is that, if you ask it to turn back
 Biden_mean <- mean(Bidenbootdata$pct)
 Biden_SD <- sd(Bidenbootdata$pct)
 
-BidenUSAsims <- function(n, m, sd, s) {
+BidenUSAsims <- function(pct) {
 
-Hopes <-  replicate(s, sample(Bidenbootdata$pct,
-                                  size = length(n),
-                                                replace = TRUE)) 
-out <- replicate(1000, Hopes)
+Hopes <-  replicate(1000, sample(Bidenbootdata$pct,
+                                  size = length(50),
+                                                replace = TRUE))
 
-return(out)
+return(Hopes)
 }
 
 
 
+BidenSims <- BidenUSAsims()
 
-BidenSIMS <- BidenUSAsims(50,50.07,3.43, 1000)
+BidenSims
 
 
 
 
 
 ```
+
 
 
     5b. Yuck. Can you turn this into something usable? Say, first make it a tibble or data frame, and then pivot it to long, such that you end up with a column that has an identifier for sim and a column with a single value from that sim?
@@ -408,12 +409,25 @@ BidenSIMS <- BidenUSAsims(50,50.07,3.43, 1000)
 
 ```{r}
 
-longBiden <- BidenSIMS %>%
+
+
+longBiden <- as.data.frame(BidenSims) #
+%>%
+  pivot_longer(cols = everything(),
+               names_to = "sim_ID",
+               values_to= "pct")
   
 
 ```
 
     5c. For each sim, what’s the bootsrapped mean and CI? Plot it! And tell us how often it’s greater than the initial mean. E.C. for the plot showing the stats in order from low to high.
+
+```{r}
+samp_sim_means <- BidenSIMS %>% 
+  mean()
+
+
+```
 
     5d. So…. what is that plot showing? What are the concepts involved?
 
