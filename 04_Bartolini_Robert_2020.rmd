@@ -252,8 +252,7 @@ Wide_poll <- Tidy_polls %>%
   select(unique_ID, state, pct, answer) %>%
   pivot_wider(names_from = state,
               values_from = pct) 
-# %>%
-  select(answer, unique_ID)
+
 
 reactable(Wide_poll)
 
@@ -261,18 +260,9 @@ reactable(Wide_poll)
 
 ```{r}
 
-avgpoldif <- Wide_poll %>%
-  group_by(answer, state) %>%
-  rowwise() %>%
-  summarise(mean_diff = mean(Georgia_132272_70715:`West Virginia_132056_70625`))
-
 meanpct <- 
-  aggregate(Wide_poll[, 3:25], list(Wide_poll$answer), mean, na.rm = TRUE) %>%
-  sapply(diff)
+  aggregate(Wide_poll[, 3:25], list(Wide_poll$answer), mean, na.rm = TRUE)
 
-difference <- meanpct %>%
-  rowwise() %>%
-  summarise(difference = Biden - Trump)
 
 reactable(meanpct)
 
@@ -281,7 +271,23 @@ reactable(meanpct)
 ```
 
 
+```{r}
 
+poll_diff <- function(pct) {
+  
+  result <- (pct - lag(pct))
+}
+
+Poll_Diff <- meanpct %>% 
+  select_if(is.numeric) %>% 
+  mutate_all(funs(difference = poll_diff(.)))%>% 
+   %>%
+  head()
+
+reactable(Poll_Diff[,24:46])
+
+
+```
 
    old Answer
 ```{r}
