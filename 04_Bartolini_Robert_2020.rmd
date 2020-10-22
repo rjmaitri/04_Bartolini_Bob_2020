@@ -1,20 +1,44 @@
 ---
-title: "Functions and Tidy Data"
-author: "Robert Bartolini"
-date: "10/5/2020"
-output: html_document
+output: 
+  html_document: 
+    df_print: kable
+    theme: cerulean
 ---
+  
+<div align="center">
+ <marquee behavior="alternate" bgcolor="#bb3434" direction="left" height:="" 
+ loop="7" scrollamount="1" scrolldelay="2" width="100%">
+ <span style="font-size: 20px;color:#FFFFFF">
+ Functions and Pivot HW!</span></marquee>
+</div>
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(reactable)
-```
+---
+title: "Homework 4"
+author: "Bob Bartolini"
+date: "9/18/2020"
+output: html_document
+  
+
+---
 https://github.com/rjmaitri/04_Bartolini_Bob_2020.git
 
-Functions and Tidy Data
-Biol 607
-10/4/2020
+```{r setup, include=FALSE}
 
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(reactable)
+
+
+```
 
 ## 1. Write a function that takes a vector and returns one bootstrapped sample from said vector. Demonstrate that it works.
 
@@ -23,6 +47,7 @@ Biol 607
 
 
 # One Bootsrap Sample ####
+#function to sample from a vector and replace
 bootstrap <- function(vec){
   
   one_boot<- sample(vec,
@@ -33,6 +58,7 @@ bootstrap <- function(vec){
   return(one_boot)
 }
 
+#output with a random vector
 bootstrap(c(1,4,5))
 
 
@@ -46,10 +72,11 @@ make sure you are using the function(s) you wrote in #1
 
 
 ```{r}
-library(dplyr)
+
 #input vec, R(#of bootstraps), mean
 #default to 1k= R
 
+#function from part 1
 bootstrap <- function(vec){
   
   one_boot<- sample(vec,
@@ -59,7 +86,8 @@ bootstrap <- function(vec){
   
   return(one_boot)
 }
-
+#input vec, R(#of bootstraps), mean
+#default to 1k= R
 boot_mean <- function(vec, R = 1000, fun = mean) {
 
 out <- replicate(R, bootstrap(vec))
@@ -68,18 +96,22 @@ out <- replicate(R, bootstrap(vec))
 fun(out)
 
 }
-
+#input vector into mean function
 boot_mean(c(3,4,5,3,2,50),10)
+```
 
 
+```{r}
 #compare to actual mean of vector
 mean(c(3,4,5,3,2))
 
+```
+
+```{r}
+#output the dataframe with sample size
 data.frame(R = 1:10) %>%
   rowwise(R) %>%
   summarize(boot_mean(c(3,4,5,3,2,50),10, fun = mean)) 
-
-
 
 ```
 
@@ -89,7 +121,8 @@ data.frame(R = 1:10) %>%
 
 ```{r}
 
-##with functions
+
+##write a function to sample from a vector
 bootstrap <- function(vec){
   
   one_boot<- sample(vec,
@@ -99,7 +132,7 @@ bootstrap <- function(vec){
   
   return(one_boot)
 }
-
+#function that takes bootstrap samples and produces a mean
 boot_mean <- function(vec, R = 1000, fun = mean) {
 
 out <- replicate(R, bootstrap(vec))
@@ -109,11 +142,20 @@ fun(out)
 
 }
 
+#test to see that it works
 boot_mean(c(3,4,5,3,2,50),10)
+```
 
-
+```{r}
 #compare to actual mean of vector
 mean(c(3,4,5,3,2))
+
+```
+
+
+```{r}
+
+#Write a function that takes the replicated bootstraps and produces statistics
 
 stats_Bootsfunc <- function(vec, R = 1000, fun = mean){
 
@@ -158,10 +200,12 @@ reactable(pres_poll)
 
     4b. Get just the polling data for this last week (from 9/29 to today). Filter on start_date. Also filter down to just Biden and Trump (see candidate_name or answer). Extra credit for using {lubridate} for this, but you can just do a messy %in% string match.
     
-```{r}
+```{r, max.height = '150px'}
+
 library(lubridate)
 library(dplyr)
 library(readr)
+library(tidyr)
 
 class(pres_poll$start_date)
 
@@ -204,6 +248,8 @@ Donald_boot_mean <- sample(trumpbootdata$pct,
 
 ```
 
+<span style="color: green;">The bootstraped national average for Trump is ``
+
 ```{r}
 
 #Biden & National Pct filter for bootstrap
@@ -220,7 +266,8 @@ Biden_boot_mean <- sample(Bidenbootdata$pct,
 
     4d. What is the average difference between the two candidates by state and national polls? Note, you’ll need to make this a wide data frame to answer! And, well, try the pivot without this advice first, but then….
     
-```{r}
+```{r, max.height = '150px'}
+
 library(tidyr)
 
 poll_wide <- pres_current %>%
@@ -228,7 +275,8 @@ poll_wide <- pres_current %>%
               values_from = pct)
 
 
-reactable(poll_wide)
+poll_wide
+
 ```
 
 ### make a unique ID by pasting together the question_id, poll_id, and state. Then select the ID, state, answer, and pct. Also filter out NA diffs
@@ -244,7 +292,7 @@ Tidy_polls <- pres_current %>%
 mutate(unique_ID = paste(state, question_id, poll_id, sep = "_"))
 
 
-# Wide_N_Tidy <- replace(Boot_pct$state, is.na(Boot_pct$state), 0)
+
 
 
 
@@ -254,7 +302,7 @@ Wide_poll <- Tidy_polls %>%
               values_from = pct) 
 
 
-reactable(Wide_poll)
+Wide_poll
 
 ```
 
@@ -266,27 +314,6 @@ meanpct <-
 
 
 reactable(meanpct)
-
-```
-
-```{r}
-
-#experiment to get SE
-mean_and_se_sim <- function(pct){
-
-out <- data.frame(Mean = mean(pct)
-        SE = sd(pct))
-  
-  return(out)
-
-}
-
-Mean_SE <- meanpct %>% 
-  select_if(is.numeric) %>% 
-  summarize(funs(Stats = mean_and_se_sim(.)))%>% 
-  head()
-
-reactable(Mean_SE[,24:46])
 
 ```
 
@@ -308,65 +335,6 @@ reactable(Poll_Diff[,24:46])
 
 ```
 
-   old Answer
-```{r}
-
-####get the difference between Trump and Biden
-Poll_diff <- Wide_poll %>%
-    group_by(state) %>%
-    arrange(unique_ID) %>%
-    mutate(diff = Trump - lag(Biden)) 
-
-reactable(Poll_diff)
-
-#extract national data/create national df
-National_diff <- Poll_diff[c(67:176),]
-
-#make absolute values
-National_diff <- abs(National_diff$diff)
-
-#bootstrap an average national poll difference
-USA_mean <- sample(na.omit(National_diff), 
-       size = length(National_diff),
-       replace = TRUE) %>% mean
-
-#create state df by extracting national
-State_diff <- Poll_diff[-c(67:176),]
-
-#make absolute values
-State_diff$diff <- abs(State_diff$diff)
-
-#bootstrap state mean
-State_mean <- sample(na.omit(State_diff), 
-       size = length(State_diff),
-       replace = TRUE) %>% mean
-
-###### attempt to get means by EACH STATE
-#bootstrap state mean
-#State_mean <- na.omit(State_diff) %>%
-#  group_by(state) %>%
-#  sample(diff,
-#       size = length(diff),
-#       replace = TRUE) %>%
-#     summarize(State = state,
-#    mean = mean(diff),
-#            SE = mean(diff)/sqrt(length(State_diff)-1))
-
-
-
-
-```
-
-
-
-
-```{r}
-aggregate(Wide_poll[, 3:25], list(Wide_poll$answer), mean, na.rm = TRUE)
-
-
-
-
-```
 
 5. replicate() has been our friend, but we’ve always had to be a little hacky with it. We’ve either had to fold in means, or use tricksy functions like colMeans and the like.
 
@@ -374,8 +342,8 @@ BUT - what’s interesting about replicate() is that, if you ask it to turn back
 
     5a. So, I want you to, using the mean and SD of Biden’s national polling average (you’ll need to calculate it!) from above, simulate 1000 draws from that population with a sample size of 50. What are the dimensions of the object. What are in the rows and columns?
     
-```{r}
-
+```{r, max.height = '150px'}
+rnorm
 ####COMPLETE
 Biden_mean <- mean(Bidenbootdata$pct)
 Biden_SD <- sd(Bidenbootdata$pct)
@@ -393,7 +361,7 @@ return(Hopes)
 
 BidenSims <- BidenUSAsims()
 
-BidenSims
+
 
 
 
@@ -411,23 +379,19 @@ BidenSims
 
 
 
-longBiden <- as.data.frame(BidenSims) #
-%>%
+longBiden <- as.data.frame(BidenSims) %>%
   pivot_longer(cols = everything(),
                names_to = "sim_ID",
                values_to= "pct")
+
+longBiden
   
 
 ```
 
     5c. For each sim, what’s the bootsrapped mean and CI? Plot it! And tell us how often it’s greater than the initial mean. E.C. for the plot showing the stats in order from low to high.
 
-```{r}
-samp_sim_means <- BidenSIMS %>% 
-  mean()
 
-
-```
 
     5d. So…. what is that plot showing? What are the concepts involved?
 
